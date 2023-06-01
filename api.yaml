@@ -1,0 +1,26 @@
+swagger: "2.0"
+info:
+  title: "Post App API swagger"
+  description: "This is documentation for post app."
+  version: 1.0
+  contact:
+    email: abc@gmail.com
+  servers:
+    -url: "http://localhost:9000"
+    description: This is my local Server
+
+schemas: [http, https]
+
+paths:
+  /feed/posts:
+    get:
+      summary: "Returns all posts"
+      description: "It is returning all posts."
+      responses:
+        200:
+          description: "Success"
+          schema:
+            type: list
+            example: [{"_id": "6423dc9bff94778f30d75a91", "title": "post3"}]
+        401:
+          description: Unauthorized
