@@ -11,7 +11,9 @@ info:
 
 schemas: [http, https]
 
+# Returning all posts
 paths:
+  tags: [Books]
   /feed/posts:
     get:
       summary: "Returns all posts"
@@ -20,7 +22,113 @@ paths:
         200:
           description: "Success"
           schema:
-            type: list
-            example: [{"_id": "6423dc9bff94778f30d75a91", "title": "post3"}]
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                title:
+                  type: string
+                imageUrl:
+                  type: string
+                content:
+                  type: string
+                creator:
+                  type: string
+                createdAt:
+                  type: date
+                updatedAt:
+                  type: date
+                __v:
+                  type: number
+              example:
+                [
+                  {
+                    "_id": "abc123abc123abc123abc123",
+                    "title": "post3",
+                    "imageUrl": "images/abcd1234-201f-46e6-aede-1c8806fd9a5d-Screenshot from 2023-03-29 10-46-26.png",
+                    "content": "post sample content",
+                    "creator": "abc123abc123abc123abc123",
+                    "createdAt": "2023-03-29T06:37:12.077Z",
+                    "updatedAt": "2023-03-29T06:37:12.077Z",
+                    "__v": 0,
+                  },
+                ]
         401:
           description: Unauthorized
+
+  # Returning post by id
+
+  /feed/post/{postId}:
+    get:
+      summary: "Returns post by id"
+      description: "It is returning post by provided id."
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "Success"
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              imageUrl:
+                type: string
+              content:
+                type: string
+              creator:
+                type: string
+              createdAt:
+                type: date
+              updatedAt:
+                type: date
+              __v:
+                type: number
+            example:
+              {
+                "_id": "abc123abc123abc123abc123",
+                "title": "post3",
+                "imageUrl": "images/abcd1234-201f-46e6-aede-1c8806fd9a5d-Screenshot from 2023-03-29 10-46-26.png",
+                "content": "post sample content",
+                "creator": "abc123abc123abc123abc123",
+                "createdAt": "2023-03-29T06:37:12.077Z",
+                "updatedAt": "2023-03-29T06:37:12.077Z",
+                "__v": 0,
+              }
+        401:
+          description: Unauthorized
+
+    # adding post
+  /feed/addpost:
+    post:
+      summary: "Adds post"
+      description: "It is returning post by provided id."
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: title
+          in: formData
+          type: string
+          required: true
+        - name: image
+          in: formData
+          type: file
+          required: true
+        - name: content
+          in: formData
+          type: string
+          required: true
+
+      responses:
+        200:
+          description: "Success"

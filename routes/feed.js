@@ -7,7 +7,7 @@ const feedController = require('../controllers/feed');
 const router = express.Router();
 
 // GET /feed/posts
-router.get('/posts',  feedController.getPosts);
+router.get('/posts',isAuth,  feedController.getPosts);
 
 //GET /feed/post/123
 router.get('/post/:postId', isAuth, feedController.getPost);
