@@ -18,7 +18,7 @@ const swaggerJsDocs = YAML.load('./api.yaml');
 
 //environmetal variable
 const port = process.env.PORT;
-const mongodbUri = process.env.MONGODB_URI;
+const mongodbUri = process.env.MONGODB_URI_LOCAL;
 
 //helper middlewares
 const { errorHandler } = require('./middlewares/errorHandler');

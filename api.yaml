@@ -3,19 +3,38 @@ info:
   title: "Post App API swagger"
   description: "This is documentation for post app."
   version: 1.0
-  contact:
-    email: abc@gmail.com
   servers:
     -url: "http://localhost:9000"
-    description: This is my local Server
+    description: This is a local server
 
 schemas: [http, https]
 
-# Returning all posts
+# 1) Define the security scheme type (HTTP bearer)
+components:
+  securitySchemes:
+    bearerAuth: # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT # optional, arbitrary value for documentation purposes
+
+securityDefinitions:
+  bearerAuth:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: >-
+      Enter the token with the `Bearer: ` prefix, e.g. "Bearer abcde12345".
+
+# Paths for different routes
 paths:
-  tags: [Books]
+  # Feed routes
   /feed/posts:
+    # Returns all posts
     get:
+      tags:
+        - Feed
+      security:
+        - bearerAuth: []
       summary: "Returns all posts"
       description: "It is returning all posts."
       responses:
@@ -43,25 +62,27 @@ paths:
                 __v:
                   type: number
               example:
-                [
-                  {
-                    "_id": "abc123abc123abc123abc123",
-                    "title": "post3",
-                    "imageUrl": "images/abcd1234-201f-46e6-aede-1c8806fd9a5d-Screenshot from 2023-03-29 10-46-26.png",
-                    "content": "post sample content",
-                    "creator": "abc123abc123abc123abc123",
-                    "createdAt": "2023-03-29T06:37:12.077Z",
-                    "updatedAt": "2023-03-29T06:37:12.077Z",
-                    "__v": 0,
-                  },
-                ]
+                {
+                  "_id": "abc123abc123abc123abc123",
+                  "title": "post3",
+                  "imageUrl": "images/abcd1234-201f-46e6-aede-1c8806fd9a5d-Screenshot from 2023-03-29 10-46-26.png",
+                  "content": "post sample content",
+                  "creator": "abc123abc123abc123abc123",
+                  "createdAt": "2023-03-29T06:37:12.077Z",
+                  "updatedAt": "2023-03-29T06:37:12.077Z",
+                  "__v": 0,
+                }
         401:
-          description: Unauthorized
-
-  # Returning post by id
-
+          description: "Unauthenticated"
+        500:
+          description: "Server Error"
   /feed/post/{postId}:
+    # Returning post by id
     get:
+      tags:
+        - Feed
+      security:
+        - bearerAuth: []
       summary: "Returns post by id"
       description: "It is returning post by provided id."
       parameters:
@@ -104,13 +125,95 @@ paths:
                 "__v": 0,
               }
         401:
-          description: Unauthorized
+          description: "Unauthenticated"
+        404:
+          description: "Not found"
+        500:
+          description: "Server Error"
+    # Updating post
+    put:
+      tags:
+        - Feed
+      security:
+        - bearerAuth: []
+      summary: "Updates post"
+      description: "It is updating post by provided id."
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: title
+          in: formData
+          type: string
+          required: true
+        - name: image
+          in: formData
+          type: file
+          required: true
+        - name: content
+          in: formData
+          type: string
+          required: true
 
-    # adding post
+      responses:
+        200:
+          description: "Success"
+        401:
+          description: "Unauthenticated"
+        403:
+          description: "Unauthorized"
+        404:
+          description: "Not found"
+        422:
+          description: "Validation failure" 
+        500:
+          description: "Server Error"
+    # Delete post
+    delete:
+      tags:
+        - Feed
+      security:
+        - bearerAuth: []
+      summary: "Updates post"
+      description: "It is updating post by provided id."
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+
+      responses:
+        200:
+          description: "Success"
+        401:
+          description: "Unauthenticated"
+        403:
+          description: "Unauthorized"
+        404:
+          description: "Not found"
+        500:
+          description: "Server Error"
+
   /feed/addpost:
+    # Adding post
     post:
+      tags:
+        - Feed
+      security:
+        - bearerAuth: []
       summary: "Adds post"
-      description: "It is returning post by provided id."
+      description: "It adds post by provided id."
       produces:
         - application/json
       consumes:
@@ -130,5 +233,96 @@ paths:
           required: true
 
       responses:
+        201:
+          description: "Success"
+        401:
+          description: "Unauthenticated"
+        422:
+          description: "Validation failure" 
+        500:
+          description: "Server Error"
+
+      
+  # Auth routes
+  /auth/signup:
+    #signup
+    post:
+      tags:
+        - Auth
+      summary: "Signup user"
+      description: "It signs up user by provided credentials."
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: email
+          in: formData
+          type: string
+          required: true
+        - name: name
+          in: formData
+          type: string
+          required: true
+        - name: password
+          in: formData
+          type: string
+          required: true
+      responses:
+        201:
+          description: "Success"
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              userId:
+                type: string
+            example:
+              { message: "User created!", userId: "abcd1234abcd1234abcd1234" }
+        422:
+          description: "Validation failure" 
+        500:
+          description: "Server Error"
+
+  /auth/signin:
+    post:
+    #signin
+      tags:
+        - Auth
+      summary: "Signin user"
+      description: "It signs in user by provided credentials."
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: email
+          in: formData
+          type: string
+          required: true
+        - name: password
+          in: formData
+          type: string
+          required: true
+      responses:
         200:
           description: "Success"
+          schema:
+            type: object
+            properties:
+              mesage:
+                type: string
+              token:
+                type: string
+            example:
+              {
+                token: "abchbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.abclbWFpbCI6InUxQGFiYy5jb20iLCJ1c2VySWQiOiI2NDdkYmYxMmYyYWMxMDlkZjJjOTUyZmUiLCJpYXQiOjE2ODU5NjMxOTQsImV4cCI6MTY4NTk5OTE5NH0.abcrqfviF5dcBABbIRE1q3g39eL7NKi9c1J3hKdHYBY",
+                userId: "abcd1234abcd1234abcd1234",
+              }
+        401:
+          description: "Wrong credentials" 
+        422:
+          description: "Validation failure" 
+        500:
+          description: "Server Error"
